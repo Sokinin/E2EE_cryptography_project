@@ -64,5 +64,7 @@ class SimpleKeyStore:
         self.enc_public = x25519.X25519PublicKey.from_public_bytes(
             b64decode(data["enc_public"])
         )
+        
+    
 
 

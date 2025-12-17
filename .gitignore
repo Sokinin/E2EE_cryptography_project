@@ -5,8 +5,6 @@ __pycache__/
 *$py.class
 
 # Virtual environments
-.venv/
-venv/
 .e2e_venv/
 .env
 
@@ -16,44 +14,14 @@ venv/
 
 # Editor directories and files
 .vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 
 # OS files
-.DS_Store
 Thumbs.db
 
-# Pytest cache
-.pytest_cache/
-
-# Build / distribution
-build/
-dist/
-*.egg-info/
 
 # Generated/stored keys and temp artifacts
 keystore/keys/
-keystore/*.json
-keys/
-temp_keys/
 
-# Local scripts copies (if any)
-scripts/user_keys/
-
-# Application artifacts
-*.pid
-*.sock
-
-# Logs
-*.log
-
-# Coverage
-htmlcov/
-.coverage
-coverage.xml
 
 # mypy
 .mypy_cache/

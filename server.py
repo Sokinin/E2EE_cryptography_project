@@ -74,11 +74,11 @@ def handle_client(sock):
 
 def run_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ip = os.getenv("server_ip", "127.0.0.1")
-    port = int(os.getenv("server_port", "8000"))
-
+    ip = os.getenv("server_ip")
+    port = int(os.getenv("server_port"))
+    
     server.bind((ip, port))
-    server.listen(5)
+    server.listen(2)
     print(f"Listening on {ip}:{port}...")
 
     try:

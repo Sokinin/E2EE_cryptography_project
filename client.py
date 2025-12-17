@@ -4,13 +4,15 @@ import base64
 import threading
 import os
 
-from crypto_utils.keygen import generate_keys
+from crypto_utils.keygen import sign_generate_keys, en_generate_keys
 from crypto_utils.encryption import encrypt_message, decrypt_message
 from crypto_utils.dh_exchange import derive_symmetric_key
 from crypto_utils.sign_verify import signer, verifier
 from keystore.simple_keystore import SimpleKeyStore
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, x25519
+from dotenv import load_dotenv
+load_dotenv()
 
 
 def listen(sock, symmetric_key, peer_sign_public):
@@ -35,24 +37,65 @@ def listen(sock, symmetric_key, peer_sign_public):
                 print("Peer has exited the chat.")
                 break
 
-        except Exception as e:
-            print("Listener error:", e)
+        except (ConnectionResetError, BrokenPipeError) as e:
+            print("Listener error: connection closed by peer:", e)
+            try:
+                sock.close()
+            except Exception:
+                pass
             break
-
+        except OSError as e:
+            if getattr(e, "winerror", None) == 10053:
+                print("Listener error: connection aborted by local host (WinError 10053). Closing socket.")
+            else:
+                print("Listener OSError:", e)
+            try:
+                sock.close()
+            except Exception:
+                pass
+            break
+        except Exception as e:
+            print("Listener unexpected error:", e)
+            try:
+                sock.close()
+            except Exception:
+                pass
+            break
 
 def run_client():
     username = input("Your name: ").strip()
     target = input("Target name: ").strip()
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(("127.0.0.1", 8000))
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+    
+    server_ip = os.getenv("server_ip")
+    server_port = int(os.getenv("server_port")) 
+
+    sock.connect((server_ip, server_port))
 
     # Load or generate keys
     store = SimpleKeyStore(username)
+    en_keys = en_generate_keys()
+
     if not os.path.exists(store.file_path):
-        keys = generate_keys()
-        store.save_keys(**keys)
-    store.load_keys()
+        sign_keys = sign_generate_keys()
+        store.save_keys(
+            sign_private=sign_keys["sign_private"],
+            sign_public=sign_keys["sign_public"],
+            enc_private=en_keys["enc_private"],
+            enc_public=en_keys["enc_public"]
+        )
+    else:
+        store.load_keys()  # loads into store attributes
+
+        store.save_keys(
+            sign_private=store.sign_private,
+            sign_public=store.sign_public,
+            enc_private=en_keys["enc_private"],
+            enc_public=en_keys["enc_public"]
+        )
+
 
     # Register with server (send keys as base64)
     sock.send(json.dumps({
@@ -123,7 +166,18 @@ def run_client():
                 "signature": base64.b64encode(signature).decode()
             }).encode())
 
+        except (BrokenPipeError, ConnectionResetError, OSError) as e:
+            print("Send error: connection closed or aborted:", e)
+            try:
+                sock.close()
+            except Exception:
+                pass
+            break
         except KeyboardInterrupt:
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except Exception:
+                pass
             break
 
     sock.close()
