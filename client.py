@@ -69,10 +69,26 @@ def run_client():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
     
-    server_ip = os.getenv("server_ip")
-    server_port = int(os.getenv("server_port")) 
+    try:
+        server_ip = os.getenv("server_ip")
+        server_port = int(os.getenv("server_port"))
 
-    sock.connect((server_ip, server_port))
+        sock.connect((server_ip, server_port))
+
+    except ConnectionRefusedError:
+        print("[!] Connection failed: server is not running or refused the connection.")
+        sock.close()
+        return
+
+    except TimeoutError:
+        print("[!] Connection failed: connection timed out.")
+        sock.close()
+        return
+
+    except OSError as e:
+        print(f"[!] Network error: {e}")
+        sock.close()
+        return
 
     # Load or generate keys
     store = SimpleKeyStore(username)

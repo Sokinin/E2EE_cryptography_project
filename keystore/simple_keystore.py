@@ -11,7 +11,7 @@ class SimpleKeyStore:
     def __init__(self, username):
         self.username = username
         self.file_path = f"keystore/keys/{username}_keys.json"
-        os.makedirs("keystore", exist_ok=True)
+        os.makedirs("keystore/keys", exist_ok=True)
         
 
     def save_keys(self,sign_private=None,sign_public=None,enc_private=None,enc_public=None):

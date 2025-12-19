@@ -11,10 +11,6 @@ def sign_generate_keys()-> dict[str, bytes]:
         # Signing keys (Ed25519)
         sign_private = ed25519.Ed25519PrivateKey.generate()
         sign_public = sign_private.public_key()
-
-        # # Encryption keys (X25519)
-        # enc_private = x25519.X25519PrivateKey.generate()
-        # enc_public = enc_private.public_key()
         
 
         return {
