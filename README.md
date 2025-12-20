@@ -83,5 +83,4 @@ Where keys are stored
 - Key files are written to `keystore/keys/<username>_keys.json`. Add
 	`keystore/keys/` to `.gitignore` to avoid committing private material.
 
-If you'd like the README expanded (protocol details, handshake flow,
-or code examples), tell me which section to expand.
+
