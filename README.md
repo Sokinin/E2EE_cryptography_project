@@ -1,4 +1,4 @@
-# E2E Encryption Demo (socket-based)
+# E2EE Encryption Demo (socket-based)
 
 This repository contains a minimal socket-based chat demo that demonstrates
 basic end-to-end encrypted messaging using Ed25519 (signing) and X25519
@@ -15,7 +15,18 @@ Project layout (relevant files)
 	- `sign_verify.py` — `signer()` and `verifier()` expect Ed25519 key objects.
 - `keystore/` — `simple_keystore.py` stores key blobs under `keystore/keys/`.
 
-Quick start (Windows PowerShell)
+Quick start
+
+1. Clone the repository and change to the project root (important):
+
+```bash
+git clone https://github.com/Sokinin/E2EE_cryptography_project.git
+cd E2EE_cryptography_project
+```
+
+2. Create and activate a virtual environment, then install requirements.
+
+Windows PowerShell
 
 ```powershell
 python -m venv .e2e_venv
@@ -23,22 +34,34 @@ python -m venv .e2e_venv
 pip install -r requirements.txt
 ```
 
+macOS / Linux (bash)
+
+```bash
+python3 -m venv .e2e_venv
+source .e2e_venv/bin/activate
+pip install -r requirements.txt
+```
+
 Run the server (single terminal):
 
-```powershell
+Windows / macOS / Linux
+
+```bash
 python server.py
+# or on some systems: python3 server.py
 ```
 
 Run a client (another terminal):
 
-```powershell
+```bash
 python client.py
+# or on some systems: python3 client.py
 ```
-Note: you need to run two terminals for two clients because these two clients will connect make a communication between one another
+Note: run two terminals for two clients so they can connect and communicate with each other.
 
 Behavior notes
-- The first time a client runs it will generate a keypair (Ed25519 + X25519)
-	via `crypto_utils/keygen.py` and save them using `keystore/SimpleKeyStore`.
+ - The first time a client runs it will generate a keypair (Ed25519 + X25519)
+	via `crypto_utils/keygen.py` and save them using the `SimpleKeyStore` in `keystore/simple_keystore.py`.
 - Clients register with `server.py` by sending base64-encoded public keys. The
 	server pairs two clients who requested each other and forwards their messages.
 - `sign_verify.signer()` and `verifier()` do not create keys — they accept
